@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Only Fans</title>
+    <link rel="icon" type="image/png" href="/static/assets/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="/static/assets/logo.png" class="logo-img" alt="Voicecord Logo">
+                <div>
+                    <div class="logo-text">VOICECORD</div>
+                    <div class="logo-version">DEVELOPED BY SUBHAN</div>
+                </div>
+            </div>
+
+            <div class="nav-section-label">Sections:</div>
+            <div class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+                <i class="ri-dashboard-3-line nav-icon"></i> TOKENS
+            </div>
+            <div class="nav-item" id="nav-reactions" onclick="showSection('reactions')">
+                <i class="ri-emotion-line nav-icon"></i> REACTIONS
+            </div>
+            <div class="nav-item" id="nav-vc" onclick="showSection('vc')">
+                <i class="ri-mic-line nav-icon"></i> VOICE CHANNEL
+            </div>
+            <div class="nav-item" id="nav-music" onclick="showSection('music')">
+                <i class="ri-music-2-line nav-icon"></i> SELF MUSIC
+            </div>
+            <div class="nav-item" id="nav-settings" onclick="showSection('settings')">
+                <i class="ri-settings-4-line nav-icon"></i> SETTINGS
+            </div>
+
+            <div class="nav-section-label">ACTION</div>
+            <div class="nav-item" onclick="openAddModal()">
+                <i class="ri-add-circle-line nav-icon"></i> ADD TOKEN
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="nav-item danger" onclick="logout()">
+                    <i class="ri-logout-box-r-line nav-icon"></i> LOGOUT
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── MAIN CONTENT ───────────────────────────────────────────────────── -->
+        <main class="main-content">
+
+            <!-- 1. DASHBOARD ───────────────────────────────────────────────────── -->
+            <div id="section-dashboard" class="section-view active">
+                <header class="topbar">
+                    <div class="topbar-title">
+                        <h2>Tokens Overview</h2>
+                        <p class="topbar-sub">Manage and monitor all your Discord accounts</p>
+                    </div>
+                    <div class="topbar-actions">
+                        <button class="btn" onclick="openAddModal()"><i class="ri-add-line"></i> New Token</button>
+                    </div>
+                </header>
+                <div class="content-area">
+                    <div class="summary-bar">
+                        <div class="summary-item"><span class="si-icon"><i class="ri-key-2-line"></i></span>
+                            <div>
+                                <div class="si-val" id="stat-total">0</div>
+                                <div class="si-lbl">Total Tokens</div>
+                            </div>
+                        </div>
+                        <div class="summary-item"><span class="si-icon"><i class="ri-radio-button-line"
+                                    style="color:oklab(100% 0 -0.00011)"></i></span>
+                            <div>
+                                <div class="si-val" id="stat-online">0</div>
+                                <div class="si-lbl">Online</div>
+                            </div>
+                        </div>
+                        <div class="summary-item"><span class="si-icon"><i class="ri-gamepad-line"
+                                    style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="stat-rpc">0</div>
+                                <div class="si-lbl">Running RPC</div>
+                            </div>
+                        </div>
+                        <div class="summary-item"><span class="si-icon"><i class="ri-volume-up-line"
+                                    style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="stat-vc">0</div>
+                                <div class="si-lbl">In Voice</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bulk-actions-panel">
+                        <span class="bulk-label">Bulk Operations</span>
+                        <div class="bulk-btns">
+                            <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('online')"><i
+                                    class="ri-circle-fill" style="color:#ffffff"></i> Online</button>
+                            <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('idle')"><i
+                                    class="ri-time-line"></i> Idle</button>
+                            <button class="btn btn-secondary btn-sm" onclick="bulkChangeStatus('dnd')"><i
+                                    class="ri-forbid-line"></i> DND</button>
+                            <button class="btn btn-warning btn-sm" onclick="bulkRestart()"><i
+                                    class="ri-refresh-line"></i> Restart All</button>
+                            <button class="btn btn-danger btn-sm" onclick="bulkDisconnectVC()"><i
+                                    class="ri-volume-mute-line"></i> Disconnect All VCs</button>
+                        </div>
+                    </div>
+                    <div class="tokens-grid" id="token-grid"></div>
+                </div>
+            </div>
+
+            <!-- 2. REACTIONS ───────────────────────────────────────────────────── -->
+            <div id="section-reactions" class="section-view">
+                <header class="topbar">
+                    <div class="topbar-title">
+                        <h2>Bulk Reaction System</h2>
+                        <p class="topbar-sub">Add reactions to any Discord message using your tokens</p>
+                    </div>
+                </header>
+                <div class="content-area">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="ri-emotion-happy-line"></i>Message Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group"><label>Channel ID</label><input type="text"
+                                        id="react-channel-id" placeholder=""></div>
+                                <div class="form-group"><label>Message ID</label><input type="text"
+                                        id="react-message-id" placeholder=""></div>
+                                <div class="form-group"><label>Emoji</label><input type="text" id="react-emoji"
+                                        placeholder="none or custom:12345"></div>
+                                <div class="form-group"><label>Delay per reaction (ms)</label><input type="number"
+                                        id="react-delay" value="500" min="100"></div>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label>Select Tokens:</label>
+                                <div class="flex-row gap-2 mb-2">
+                                    <button class="btn btn-secondary btn-sm" onclick="selectAllReactionTokens(true)"><i
+                                            class="ri-check-double-line"></i> Select All</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="selectAllReactionTokens(false)"><i
+                                            class="ri-close-line"></i> Deselect All</button>
+                                </div>
+                                <div class="checkbox-tokens-list" id="react-tokens-list"></div>
+                            </div>
+                            <button class="btn btn-primary btn-lg mt-3" onclick="sendBulkReactions()"><i
+                                    class="ri-send-plane-fill"></i>Send Reactions</button>
+                            <div class="terminal-box mt-4">
+                                <div class="terminal-title"><i class="ri-terminal-box-line"></i>Logs</div>
+                                <div class="terminal-content" id="reaction-logs-terminal">
+                                    <div class="log-line info">DEVELOPED BY SUBHAN</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. VOICE CHANNELS ──────────────────────────────────────────────── -->
+            <div id="section-vc" class="section-view">
+                <header class="topbar">
+                    <div class="topbar-title">
+                        <h2>Voice Channel Manager</h2>
+                        <p class="topbar-sub">Connect or disconnect tokens from voice channels</p>
+                    </div>
+                </header>
+                <div class="content-area">
+                    <div class="vc-list" id="vc-list"></div>
+                </div>
+            </div>
+
+            <!-- 4. SELF MUSIC ──────────────────────────────────────────────────── -->
+            <div id="section-music" class="section-view">
+                <header class="topbar">
+                    <div class="topbar-title">
+                        <h2>Self Music Player</h2>
+                        <p class="topbar-sub">Play music through any token's voice channel via Lavalink</p>
+                    </div>
+                </header>
+                <div class="content-area">
+
+                    <!-- Token Selector -->
+                    <div class="card music-token-selector" id="music-token-selector-card">
+                        <div class="card-header">
+                            <h3><i class="ri-user-voice-line"></i> Select Token to Control</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Choose a token — it must be connected to a voice channel</label>
+                                <select id="music-token-select" onchange="onMusicTokenSelected()">
+                                    <option value="">-- Select Token --</option>
+                                </select>
+                            </div>
+                            <div id="music-token-vc-status" class="info-box" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Player (hidden until token selected + in VC) -->
+                    <div id="music-player-wrap" style="display:none;">
+                        <div class="music-layout">
+
+                            <!-- Left: Player card -->
+                            <div class="music-player-card card">
+                                <div class="now-playing-thumb-wrap">
+                                    <img id="music-thumb" src="https://placehold.co/200x200/060c18/0ea5e9?text=♪"
+                                        class="music-thumb" alt="Thumbnail">
+                                    <div class="music-thumb-overlay" id="music-thumb-overlay"></div>
+                                </div>
+
+                                <div class="music-track-info">
+                                    <div class="music-title" id="music-title">No Song Playing</div>
+                                    <div class="music-author" id="music-author">Select a song to get started</div>
+                                    <a class="music-link" id="music-link" href="#" target="_blank"
+                                        style="display:none;">
+                                        <i class="ri-external-link-line"></i> Open on YouTube
+                                    </a>
+                                </div>
+
+                                <!-- Progress bar -->
+                                <div class="music-progress-wrap">
+                                    <span class="music-time" id="music-time-cur">0:00</span>
+                                    <div class="music-progress-track">
+                                        <div class="music-progress-fill" id="music-progress-fill"></div>
+                                    </div>
+                                    <span class="music-time" id="music-time-total">0:00</span>
+                                </div>
+
+                                <!-- Controls -->
+                                <div class="music-controls">
+                                    <button class="music-ctrl-btn" id="btn-loop" onclick="musicLoop()" title="Loop">
+                                        <i class="ri-loop-left-line"></i>
+                                    </button>
+                                    <button class="music-ctrl-btn music-ctrl-main" onclick="musicPauseResume()"
+                                        id="btn-play-pause" title="Pause / Resume">
+                                        <i class="ri-play-fill" id="music-play-icon"></i>
+                                    </button>
+                                    <button class="music-ctrl-btn music-ctrl-main" onclick="musicStop()" title="Stop">
+                                        <i class="ri-stop-fill"></i>
+                                    </button>
+                                    <button class="music-ctrl-btn" onclick="musicSkip()" title="Next">
+                                        <i class="ri-skip-forward-fill"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Volume -->
+                                <div class="music-volume-row">
+                                    <i class="ri-volume-down-line music-vol-icon"></i>
+                                    <input type="range" id="music-volume" class="music-volume-slider" min="0" max="150"
+                                        value="100" oninput="musicSetVolume(this.value)">
+                                    <i class="ri-volume-up-line music-vol-icon"></i>
+                                    <span class="music-vol-val" id="music-vol-val">100%</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: Search + Queue -->
+                            <div class="music-right-panel">
+
+                                <!-- Search Box -->
+                                <div class="card music-search-card">
+                                    <div class="card-header">
+                                        <h3><i class="ri-search-2-line"></i> Search Music</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="music-search-row">
+                                            <input type="text" id="music-search-input"
+                                                placeholder="Song name or YouTube URL..." oninput="onMusicSearchInput()"
+                                                onkeydown="if(event.key==='Enter') musicPlay()">
+                                            <button class="btn btn-sm" onclick="musicPlay()"><i
+                                                    class="ri-play-line"></i> Play</button>
+                                        </div>
+                                        <div class="music-search-results" id="music-search-results"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Queue -->
+                                <div class="card music-queue-card">
+                                    <div class="card-header">
+                                        <h3><i class="ri-list-ordered-2"></i> Queue <span class="badge badge-info"
+                                                id="music-queue-count">0 songs</span></h3>
+                                        <button class="btn btn-secondary btn-sm" onclick="musicClearQueue()"><i
+                                                class="ri-delete-bin-line"></i> Clear</button>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="music-queue-list" id="music-queue-list">
+                                            <div class="music-empty-state"><i class="ri-music-line"></i>
+                                                <p>Queue is empty</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SETTINGS ────────────────────────────────────────────────────── -->
+            <div id="section-settings" class="section-view">
+                <header class="topbar">
+                    <div class="topbar-title">
+                        <h2>Settings</h2>
+                        <p class="topbar-sub">Configure Lavalink, view node status and system stats</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshSettingsStats()"><i
+                            class="ri-refresh-line"></i> Refresh</button>
+                </header>
+                <div class="content-area">
+
+                    <!-- Stats Row -->
+                    <div class="summary-bar mb-3">
+                        <div class="summary-item">
+                            <span class="si-icon"><i class="ri-key-2-line" style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="settings-valid-tokens">-</div>
+                                <div class="si-lbl">Valid Tokens</div>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <span class="si-icon"><i class="ri-timer-line" style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="settings-uptime">--:--:--</div>
+                                <div class="si-lbl">Server Uptime</div>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <span class="si-icon"><i class="ri-cpu-line" style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="settings-cpu">--%</div>
+                                <div class="si-lbl">CPU Usage</div>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <span class="si-icon"><i class="ri-ram-2-line" style="color:#ffffff"></i></span>
+                            <div>
+                                <div class="si-val" id="settings-ram">-- MB</div>
+                                <div class="si-lbl">RAM Used</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lavalink Status Card -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h3><i class="ri-server-line"></i> Lavalink Node Status</h3>
+                            <div id="lavalink-status-badge" class="badge badge-warning">
+                                <i class="ri-loader-3-line"></i> Checking...
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="lavalink-stats-grid" id="lavalink-stats-grid">
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-pulse-line"></i> Latency</div>
+                                    <div class="lv-stat-val" id="lv-latency">--</div>
+                                </div>
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-cpu-line"></i> Node CPU</div>
+                                    <div class="lv-stat-val" id="lv-cpu">--</div>
+                                </div>
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-ram-2-line"></i> Node Memory</div>
+                                    <div class="lv-stat-val" id="lv-mem">--</div>
+                                </div>
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-music-2-line"></i> Active Players</div>
+                                    <div class="lv-stat-val" id="lv-players">--</div>
+                                </div>
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-upload-cloud-line"></i> Frames Sent</div>
+                                    <div class="lv-stat-val" id="lv-frames">--</div>
+                                </div>
+                                <div class="lv-stat-item">
+                                    <div class="lv-stat-label"><i class="ri-information-line"></i> Version</div>
+                                    <div class="lv-stat-val" id="lv-version">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lavalink Config Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="ri-settings-3-line"></i> Lavalink Configuration</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-box mb-3">
+                                <i class="ri-information-line"></i>
+                                Change your Lavalink server here. Default is a public node. For production use your own
+                                Lavalink instance.
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Lavalink URI</label>
+                                    <input type="text" id="lv-config-uri" placeholder="http://localhost:2333">
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="lv-config-pass" placeholder="youshallnotpass"
+                                        class="blur-input">
+                                </div>
+                            </div>
+                            <div class="flex-row gap-2 mt-3">
+                                <button class="btn btn-primary" onclick="saveLavalinkConfig()"><i
+                                        class="ri-save-line"></i> Save & Apply</button>
+                                <button class="btn btn-secondary" onclick="testLavalinkConnection()"><i
+                                        class="ri-signal-wifi-line"></i> Check Lavalink</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- ── TOKEN ADD/EDIT MODAL ──────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="token-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"><i class="ri-add-circle-line"></i> Add New Token</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="token-form">
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-key-2-line"></i> Account Token</div>
+                        <div class="form-group">
+                            <label>Discord Token</label>
+                            <input type="password" id="t-token" class="blur-input" placeholder="DEVELOPED BY SUBHAN"
+                                required autocomplete="off">
+                            <span class="hint">Warning: Don't use your main account's token. Use a alt account's
+                                token.</span>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-mic-2-line"></i> Voice Channel</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Guild ID</label><input type="text" id="t-vc-guild"
+                                    placeholder=""></div>
+                            <div class="form-group"><label>Channel ID</label><input type="text" id="t-vc-channel"
+                                    placeholder=""></div>
+                        </div>
+                        <div class="form-row">
+                            <label class="checkbox-row"><input type="checkbox" id="t-vc-mute"><span class="cb-label"><i
+                                        class="ri-mic-off-line"></i> Self Mute</span></label>
+                            <label class="checkbox-row"><input type="checkbox" id="t-vc-deaf"><span class="cb-label"><i
+                                        class="ri-headphone-line"></i> Self Deaf</span></label>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-user-settings-line"></i> Profile & Presence</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="t-status">
+                                    <option value="online">Online</option>
+                                    <option value="idle">Idle</option>
+                                    <option value="dnd">Do Not Disturb</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Platform</label>
+                                <select id="t-platform">
+                                    <option value="pc">PC</option>
+                                    <option value="mobile">Mobile</option>
+                                    <option value="vr">VR</option>
+                                    <option value="xbox">Xbox</option>
+                                    <option value="playstation">PlayStation</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Custom Status</label><input type="text" id="t-status-text"
+                                placeholder="Hello World"></div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-camera-line"></i> Self-Camera & YouTube Stream
+                        </div>
+                        <div class="form-row">
+                            <label class="checkbox-row"><input type="checkbox" id="t-self-cam"><span class="cb-label"><i
+                                        class="ri-vidicon-line"></i> Self-Camera</span></label>
+                            <label class="checkbox-row"><input type="checkbox" id="t-yt-enable"
+                                    onchange="toggleYtInput()"><span class="cb-label"><i class="ri-youtube-line"></i>
+                                    YouTube Stream (Not Working)</span></label>
+                        </div>
+                        <div class="form-group mt-2" id="yt-link-group" style="display:none;">
+                            <label>YouTube Video URL</label>
+                            <input type="url" id="t-yt-url"
+                                placeholder="https://www.youtube.com/watch?v=developed-by-subhan">
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-gamepad-line"></i> Rich Presence (RPC)</div>
+                        <div class="info-box"><i class="ri-information-line"></i> Application ID is required for RPC
+                            buttons.</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Application ID</label><input type="text" id="t-app-id"
+                                    placeholder="Required for buttons"></div>
+                            <div class="form-group">
+                                <label>Activity Type</label>
+                                <select id="t-rpc-type" onchange="toggleStreamingUrl()">
+                                    <option value="playing">Playing</option>
+                                    <option value="streaming">Streaming</option>
+                                    <option value="listening">Listening</option>
+                                    <option value="watching">Watching</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" id="streaming-url-group" style="display:none;">
+                            <label>Streaming URL</label>
+                            <input type="url" id="t-rpc-url" placeholder="https://twitch.tv/subhan.exe">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Activity Name</label><input type="text" id="t-rpc-name"
+                                    placeholder="Minecraft"></div>
+                            <div class="form-group"><label>Details</label><input type="text" id="t-rpc-details"
+                                    placeholder="In a match"></div>
+                        </div>
+                        <div class="form-group"><label>State</label><input type="text" id="t-rpc-state"
+                                placeholder="Winning"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Large Image</label><input type="text" id="t-rpc-large-img"
+                                    placeholder="asset or url"></div>
+                            <div class="form-group"><label>Large Image Text</label><input type="text"
+                                    id="t-rpc-large-text"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Small Image</label><input type="text" id="t-rpc-small-img"
+                                    placeholder="asset or url"></div>
+                            <div class="form-group"><label>Small Image Text</label><input type="text"
+                                    id="t-rpc-small-text"></div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="ri-links-line"></i> RPC Buttons</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Button 1 Label</label><input type="text"
+                                    id="t-rpc-btn1-label" maxlength="32"></div>
+                            <div class="form-group"><label>Button 1 URL</label><input type="url" id="t-rpc-btn1-url"
+                                    placeholder="https://..."></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Button 2 Label</label><input type="text"
+                                    id="t-rpc-btn2-label" maxlength="32"></div>
+                            <div class="form-group"><label>Button 2 URL</label><input type="url" id="t-rpc-btn2-url"
+                                    placeholder="https://..."></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()"><i class="ri-close-line"></i> Cancel</button>
+                <button class="btn" onclick="saveToken()"><i class="ri-save-line"></i> Save Token</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PROFILE EDIT MODAL ────────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="ri-user-line"></i> Edit Discord Profile</h3>
+                <button class="modal-close" onclick="closeProfileModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="p-token-id">
+                <div class="form-group"><label>Global Display Name</label><input type="text" id="p-global-name"
+                        placeholder="John Doe"></div>
+                <div class="form-group"><label>Bio</label><textarea id="p-bio" rows="3"
+                        placeholder="About me..."></textarea></div>
+                <div class="form-group">
+                    <label>Avatar Image</label>
+                    <input type="file" id="p-avatar-file" accept="image/png,image/jpeg,image/gif"
+                        onchange="convertAvatarToBase64(this)">
+                    <input type="hidden" id="p-avatar-base64">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProfileModal()"><i class="ri-close-line"></i>
+                    Cancel</button>
+                <button class="btn btn-primary" onclick="saveDiscordProfile()"><i class="ri-save-line"></i> Save
+                    Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── VC NOT CONNECTED POPUP ────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="vc-warning-modal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h3><i class="ri-error-warning-line" style="color:#f59e0b"></i> Not in Voice Channel</h3>
+                <button class="modal-close"
+                    onclick="document.getElementById('vc-warning-modal').classList.remove('active')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-muted);font-size:14px;line-height:1.7">
+                    The selected token is <strong style="color:#fbbf24">not connected to any voice channel</strong>.
+                    Please connect it to a voice channel first via the <strong>Voice Channels</strong> section, then
+                    return here to play music.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('vc-warning-modal').classList.remove('active')">Close</button>
+                <button class="btn"
+                    onclick="showSection('vc');document.getElementById('vc-warning-modal').classList.remove('active')"><i
+                        class="ri-mic-line"></i> Go to Voice Channels</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

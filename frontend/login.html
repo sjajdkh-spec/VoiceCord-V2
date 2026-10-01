@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Only Fans</title>
+    <link rel="icon" type="image/png" href="/static/assets/logo.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body class="login-body">
+    <div class="login-bg-glow"></div>
+    <div class="login-container">
+        <div class="glass-card login-card">
+            <div class="login-header">
+                <div class="login-logo-wrap">
+                    <img src="/static/assets/logo.png" class="login-logo-img" alt="Voicecord Logo">
+                </div>
+                <div class="brand-badge">
+                    <span class="pulse-dot"></span> VOICECORD
+                </div>
+                <h2>Welcome Back!</h2>
+                <!-- <p class="login-sub">Enter your admin credentials to access control dashboard</p> -->
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-icon-wrapper">
+                        <i class="ri-user-3-line input-icon"></i>
+                        <input type="text" id="username" placeholder="" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-icon-wrapper">
+                        <i class="ri-lock-password-line input-icon"></i>
+                        <input type="password" id="password" placeholder="" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <div id="error-msg" class="error-banner" style="display:none;"></div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-glow">
+                    <span>Login In to Dashboard</span>
+                    <i class="ri-arrow-right-line btn-arrow"></i>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <i class="ri-shield-check-line"></i> <span>DEVELOPED BY SUBHAN</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('error-msg');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Authenticating...</span>';
+
+            const formData = new FormData();
+            formData.append('username', u);
+            formData.append('password', p);
+
+            try {
+                const res = await fetch('/login', { method: 'POST', body: formData });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    // Set both keys so app.js and legacy callers get token correctly!
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('vc_token', data.access_token);
+
+                    submitBtn.innerHTML = '<span>Success! Redirecting...</span>';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 400);
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    errorEl.innerText = errData.detail || 'Wrong Authentication';
+                    errorEl.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Login In to Dashboard</span> <i class="ri-arrow-right-line btn-arrow"></i>';
+                }
+            } catch (err) {
+                errorEl.innerText = 'Connection failed. Please check if backend is running.';
+                errorEl.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Login In to Dashboard</span> <i class="ri-arrow-right-line btn-arrow"></i>';
+            }
+        });
+    </script>
+</body>
+
+</html>
